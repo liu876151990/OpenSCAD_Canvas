@@ -142,8 +142,9 @@ namespace Canvas
                         FontFamily family = new FontFamily("Arial");
                         int emSize = 16;
                         Brush brush = Brushes.Red;
+                        StringFormat strF = new StringFormat(StringFormatFlags.NoWrap);
                         canvas.Graphics.DrawString(stringText, new Font(family, emSize), 
-                            brush, new PointF(p1.X - 10, p1.Y - 20));
+                            brush, new PointF(p1.X - 10, p1.Y - 20), strF);
                         p2.Y += 20;
                     }
                     else if (count%5 == 0)
@@ -182,8 +183,9 @@ namespace Canvas
                         FontFamily family = new FontFamily("Arial");
                         int emSize = 16;
                         Brush brush = Brushes.Red;
+                        StringFormat strF = new StringFormat(StringFormatFlags.DirectionVertical);
                         canvas.Graphics.DrawString(stringText, new Font(family, emSize),
-                            brush, new PointF(p1.X - 20, p1.Y - 10));
+                            brush, new PointF(p1.X - 25, p1.Y - 10), strF);
                         p2.X += 20;
                     }
                     else if (count % 5 == 0)
