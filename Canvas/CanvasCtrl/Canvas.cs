@@ -627,9 +627,9 @@ namespace Canvas
 			else
 				m_model.Zoom = m_model.Zoom * zoomdelta;
 
-            if (m_model.Zoom < 0.01f)
+            if (m_model.Zoom < 0.012f)
             {
-                m_model.Zoom = 0.01f;
+                m_model.Zoom = 0.012f;
             }
             else if (m_model.Zoom > 1000)
             {

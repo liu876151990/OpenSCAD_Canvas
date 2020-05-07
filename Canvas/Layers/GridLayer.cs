@@ -15,12 +15,29 @@ namespace Canvas
 			Dots,
 			Lines,
 		}
-		public SizeF m_spacing = new SizeF(1f, 1f); // 12"
+        private int m_viewGrade = 21;
+        private double[] dbViewGrade = new double[21]{0.001,0.002,0.005,0.01,0.02,0.05,
+                                0.1,0.2,0.5,1,2,5,10,20,50,
+                                100,200,500,1000,2000,5000};
+        private int m_rulerMinSize = 5;//标尺最小像素间隔
+
+        public SizeF m_spacing = new SizeF(1f, 1f); // 12"
 		private bool m_enabled = true;
 		private int m_minSize = 1/*15*/;
 		private eStyle m_gridStyle = eStyle.Lines;
 		private Color m_color = Color.FromArgb(50, Color.Gray);
-		[XmlSerializable]
+        [XmlSerializable]
+        public int ViewGrade
+        {
+            get { return m_viewGrade; }
+        }
+        [XmlSerializable]
+		public int RulerMinSize
+        {
+			get { return m_rulerMinSize; }
+			set { m_rulerMinSize = value; }
+		}
+        [XmlSerializable]
 		public SizeF Spacing
 		{
 			get { return m_spacing; }
@@ -118,6 +135,7 @@ namespace Canvas
             {
                 Pen pen = new Pen(Color.Red);
                 GraphicsPath path = new GraphicsPath();
+                float curSize = GetViewGrade(canvas);
 
                 // draw vertical lines
                 left = (float)Math.Round(leftpoint.X / gridX) * gridX-1;
@@ -127,7 +145,7 @@ namespace Canvas
                 {
                     if (left < startPos)
                     {
-                        left += 0.1f;
+                        left += curSize/*0.1f*/;
                         count++;
                         continue;
                     }
@@ -138,9 +156,9 @@ namespace Canvas
                     if (count%10 == 0)
                     {
                         // Set up all the string parameters.
-                        string stringText = left.ToString("0");
+                        string stringText = left.ToString("0.###");
                         FontFamily family = new FontFamily("Arial");
-                        int emSize = 16;
+                        int emSize = 10;
                         Brush brush = Brushes.Red;
                         StringFormat strF = new StringFormat(StringFormatFlags.NoWrap);
                         canvas.Graphics.DrawString(stringText, new Font(family, emSize), 
@@ -157,7 +175,7 @@ namespace Canvas
                     }
                     path.AddLine(p1, p2);
                     path.CloseFigure();
-                    left += 0.1f;
+                    left += curSize/*0.1f*/;
                     count++;
                 }
 
@@ -179,13 +197,13 @@ namespace Canvas
                     if (count % 10 == 0)
                     {
                         // Set up all the string parameters.
-                        string stringText = bottom.ToString("0");
+                        string stringText = bottom.ToString("0.###");
                         FontFamily family = new FontFamily("Arial");
-                        int emSize = 16;
+                        int emSize = 10;
                         Brush brush = Brushes.Red;
                         StringFormat strF = new StringFormat(StringFormatFlags.DirectionVertical);
                         canvas.Graphics.DrawString(stringText, new Font(family, emSize),
-                            brush, new PointF(p1.X - 25, p1.Y - 10), strF);
+                            brush, new PointF(p1.X - 20, p1.Y - 10), strF);
                         p2.X += 20;
                     }
                     else if (count % 5 == 0)
@@ -198,11 +216,26 @@ namespace Canvas
                     }
                     path.AddLine(p1, p2);
                     path.CloseFigure();
-                    bottom += 0.1f;
+                    bottom += curSize/*0.1f*/;
                     count++;
                 }
                 canvas.Graphics.DrawPath(pen, path);
             }
+        }
+        //过去当前缩放等级下的刻度显示等级
+        public float GetViewGrade(ICanvas canvas)
+        {
+            double minUnit = canvas.ToUnit(RulerMinSize);
+            double val = dbViewGrade[ViewGrade - 1];
+            for (int i = 0; i < ViewGrade; i++)
+            {
+                if (minUnit <= dbViewGrade[i])
+                {
+                    val = dbViewGrade[i];
+                    break;
+                }
+            }
+            return (float)val;
         }
 		public string Id
 		{
