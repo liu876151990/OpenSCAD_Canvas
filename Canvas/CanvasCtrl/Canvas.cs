@@ -626,6 +626,15 @@ namespace Canvas
 				m_model.Zoom = m_model.Zoom / zoomdelta;
 			else
 				m_model.Zoom = m_model.Zoom * zoomdelta;
+
+            if (m_model.Zoom < 0.01f)
+            {
+                m_model.Zoom = 0.01f;
+            }
+            else if (m_model.Zoom > 1000)
+            {
+                m_model.Zoom = 1000;
+            }
 			SetCenterScreen(ToScreen(p), true);
 			DoInvalidate(true);
 			base.OnMouseWheel(e);
