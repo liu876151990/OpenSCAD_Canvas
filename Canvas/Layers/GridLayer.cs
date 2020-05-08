@@ -20,6 +20,8 @@ namespace Canvas
                                 0.1,0.2,0.5,1,2,5,10,20,50,
                                 100,200,500,1000,2000,5000};
         private int m_rulerMinSize = 5;//标尺最小像素间隔
+        private int m_boxSizeX = 120;//box大小
+        private int m_boxSizeY = 100;
 
         public SizeF m_spacing = new SizeF(1f, 1f); // 12"
 		private bool m_enabled = true;
@@ -37,6 +39,18 @@ namespace Canvas
 			get { return m_rulerMinSize; }
 			set { m_rulerMinSize = value; }
 		}
+        [XmlSerializable]
+        public int BoxSizeX
+        {
+            get { return m_boxSizeX; }
+            set { m_boxSizeX = value; }
+        }
+        [XmlSerializable]
+        public int BoxSizeY
+        {
+            get { return m_boxSizeY; }
+            set { m_boxSizeY = value; }
+        }
         [XmlSerializable]
 		public SizeF Spacing
 		{
@@ -130,7 +144,42 @@ namespace Canvas
 				}
 				canvas.Graphics.DrawPath(pen, path);
 			}
-            
+            DrawBox(canvas, unitrect);
+            DrawRuler(canvas, unitrect);
+        }
+        //过去当前缩放等级下的刻度显示等级
+        public float GetViewGrade(ICanvas canvas)
+        {
+            double minUnit = canvas.ToUnit(RulerMinSize);
+            double val = dbViewGrade[ViewGrade - 1];
+            for (int i = 0; i < ViewGrade; i++)
+            {
+                if (minUnit <= dbViewGrade[i])
+                {
+                    val = dbViewGrade[i];
+                    break;
+                }
+            }
+            return (float)val;
+        }
+        public void DrawRuler(ICanvas canvas, RectangleF unitrect)
+        {
+            if (Enabled == false)
+                return;
+            float gridX = Spacing.Width;
+            float gridY = Spacing.Height;
+            float gridscreensizeX = canvas.ToScreen(gridX);
+            float gridscreensizeY = canvas.ToScreen(gridY);
+            if (gridscreensizeX < MinSize || gridscreensizeY < MinSize)
+                return;
+
+            PointF leftpoint = unitrect.Location;
+            PointF rightpoint = ScreenUtils.RightPoint(canvas, unitrect);
+
+            float left = 0;
+            float top = unitrect.Height + unitrect.Y;
+            float right = rightpoint.X;
+            float bottom = 0;
             if (true)//绘制标尺
             {
                 Pen pen = new Pen(Color.Red);
@@ -138,7 +187,7 @@ namespace Canvas
                 float curSize = GetViewGrade(canvas);
 
                 // draw vertical lines
-                left = (float)Math.Round(leftpoint.X / gridX) * gridX-1;
+                left = (float)Math.Round(leftpoint.X / gridX) * gridX - 1;
                 double startPos = canvas.ToUnit(canvas.ToScreen(leftpoint.X) + 20f);
                 int count = 0;
                 while (left < right)
@@ -153,7 +202,7 @@ namespace Canvas
                     PointF p2 = canvas.ToScreen(new UnitPoint(left, rightpoint.Y));
                     p1.Y += 20;
                     p2.Y += 20;
-                    if (count%10 == 0)
+                    if (count % 10 == 0)
                     {
                         // Set up all the string parameters.
                         string stringText = left.ToString("0.###");
@@ -161,11 +210,11 @@ namespace Canvas
                         int emSize = 10;
                         Brush brush = Brushes.Red;
                         StringFormat strF = new StringFormat(StringFormatFlags.NoWrap);
-                        canvas.Graphics.DrawString(stringText, new Font(family, emSize), 
+                        canvas.Graphics.DrawString(stringText, new Font(family, emSize),
                             brush, new PointF(p1.X - 10, p1.Y - 20), strF);
                         p2.Y += 20;
                     }
-                    else if (count%5 == 0)
+                    else if (count % 5 == 0)
                     {
                         p2.Y += 15;
                     }
@@ -180,7 +229,7 @@ namespace Canvas
                 }
 
                 // draw horizontal lines
-                bottom = (float)Math.Round(leftpoint.Y / gridY) * gridY-1;
+                bottom = (float)Math.Round(leftpoint.Y / gridY) * gridY - 1;
                 startPos = canvas.ToUnit(canvas.ToScreen(rightpoint.Y) - 20f);
                 count = 0;
                 while (bottom < top)
@@ -222,20 +271,15 @@ namespace Canvas
                 canvas.Graphics.DrawPath(pen, path);
             }
         }
-        //过去当前缩放等级下的刻度显示等级
-        public float GetViewGrade(ICanvas canvas)
+        public void DrawBox(ICanvas canvas, RectangleF unitrect)
         {
-            double minUnit = canvas.ToUnit(RulerMinSize);
-            double val = dbViewGrade[ViewGrade - 1];
-            for (int i = 0; i < ViewGrade; i++)
-            {
-                if (minUnit <= dbViewGrade[i])
-                {
-                    val = dbViewGrade[i];
-                    break;
-                }
-            }
-            return (float)val;
+            Pen pen = new Pen(Color.Green);
+            UnitPoint unitPoint = new UnitPoint(-BoxSizeX / 2, BoxSizeY / 2);
+            PointF point = canvas.ToScreen(unitPoint);
+            float width = canvas.ToScreen(BoxSizeX);
+            float height = canvas.ToScreen(BoxSizeY);
+            canvas.Graphics.DrawRectangle(pen, point.X, point.Y, width, height);
+            canvas.Graphics.DrawEllipse(pen, point.X, point.Y, width, height);
         }
 		public string Id
 		{
