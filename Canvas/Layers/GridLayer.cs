@@ -274,14 +274,30 @@ namespace Canvas
         public void DrawBox(ICanvas canvas, RectangleF unitrect)
         {
             Pen pen = new Pen(Color.Green);
+            //pen.DashStyle = System.Drawing.Drawing2D.DashStyle.Dash;
+           
             UnitPoint unitPoint = new UnitPoint(-BoxSizeX / 2, BoxSizeY / 2);
             PointF point = canvas.ToScreen(unitPoint);
+            PointF center = canvas.ToScreen(new UnitPoint(0,0));
             float width = canvas.ToScreen(BoxSizeX);
             float height = canvas.ToScreen(BoxSizeY);
-            canvas.Graphics.DrawRectangle(pen, point.X, point.Y, width, height);
-            canvas.Graphics.DrawEllipse(pen, point.X, point.Y, width, height);
+            GraphicsPath path = new GraphicsPath();
+            RectangleF rectf = new RectangleF(point.X, point.Y, width, height);
+            path.AddRectangle(rectf);
+            path.CloseFigure();
+            path.AddEllipse(rectf);
+            path.CloseFigure();
+            path.AddLine(center.X, point.Y, center.X, point.Y + height);
+            path.CloseFigure();
+            path.AddLine(point.X, center.Y, point.X + width, center.Y);
+            path.CloseFigure();
+            canvas.Graphics.DrawPath(pen, path);
+//             canvas.Graphics.DrawRectangle(pen, point.X, point.Y, width, height);
+//             canvas.Graphics.DrawEllipse(pen, point.X, point.Y, width, height);
+//             canvas.Graphics.DrawLine(pen, center.X, point.Y, center.X, point.Y+height);
+//             canvas.Graphics.DrawLine(pen, point.X, center.Y, point.X+width, center.Y);
         }
-		public string Id
+        public string Id
 		{
 			get { return "grid"; }
 		}
