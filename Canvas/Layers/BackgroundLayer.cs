@@ -10,7 +10,7 @@ namespace Canvas
 	public class BackgroundLayer : ICanvasLayer, ISerialize
 	{
 		Font m_font = new System.Drawing.Font("Arial Black", 25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-		SolidBrush m_brush = new SolidBrush(Color.FromArgb(50, 200, 200, 200));
+		SolidBrush m_brush = new SolidBrush(Color.FromArgb(10, 200, 200, 200));
 		SolidBrush m_backgroundBrush;
 
 		Color m_color = Color.Black;
@@ -40,7 +40,7 @@ namespace Canvas
 			PointF centerpoint = new PointF(r.Width / 2, r.Height / 2);
 			canvas.Graphics.TranslateTransform(centerpoint.X, centerpoint.Y);
 			canvas.Graphics.RotateTransform(-15);
-			canvas.Graphics.DrawString("Jesper Kristiansen (2007)", m_font, m_brush, 0, 0, f);
+			canvas.Graphics.DrawString("HANS LASER SOFT (2020)", m_font, m_brush, 0, 0, f);
 			canvas.Graphics.ResetTransform();
 		}
 		public PointF SnapPoint(PointF unitmousepoint)
